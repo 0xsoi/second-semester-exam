@@ -1,0 +1,33 @@
+---
+
+- name: Deploy Laravel Application
+  hosts: all
+  become: yes
+
+  tasks:
+   - name: Ensure the destination directory exists
+     file:
+       path: /home/vagrant/lamp-laravel-deployment/
+       state: directory
+
+   - name: copy the deployment script
+     copy:
+        src: /home/vagrant/lamp-stack/script.sh
+        dest: /home/vagrant/lamp-laravel-deployment/script.sh
+        mode: 0755
+
+   - name: Execute the script
+     shell: /home/vagrant/lamp-laravel-deployment/script.sh
+
+   - name: Create uptime log file
+     file:
+        path: /var/log/uptime.log
+        state: touch
+        mode: 0644
+
+   - name: Create uptime cronjob
+     cron:
+         name: Check server uptime
+         minute: 0
+         hour: 0
+         job: uptime > /var/log/uptime.log
